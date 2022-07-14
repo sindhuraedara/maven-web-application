@@ -8,6 +8,7 @@ node
     echo "the node label is: ${env.NODE_LABELS}"
     echo "the ebuild number is: ${env.BUILD_NUMBER}"
     try{
+        notifyBuild("STARTED")
     stage('CheckoutCode'){
         git branch: 'development', credentialsId: 'e29007c5-c6c8-4b5d-a231-3035740044f0', url: 'https://github.com/sindhuraedara/maven-web-application.git'
 
