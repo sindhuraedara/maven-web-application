@@ -7,7 +7,7 @@ node
     echo "the workspace space is: ${env.WORKSPACE}"
     echo "the node label is: ${env.NODE_LABELS}"
     echo "the ebuild number is: ${env.BUILD_NUMBER}"
-    
+    try{
     stage('CheckoutCode'){
         git branch: 'development', credentialsId: 'e29007c5-c6c8-4b5d-a231-3035740044f0', url: 'https://github.com/sindhuraedara/maven-web-application.git'
 
@@ -29,4 +29,39 @@ node
 }
     }
     */
+    }
+    catch(e){
+        currentBuild.result = "FAILURE"
+        throw e
+    }
+    finally{
+        notifyBuild(currentBuild.result)
+    }
+   
+}//node closing
+
+def notifyBuild(String buildStatus = 'STARTED') {
+  
+  buildStatus =  buildStatus ?: 'SUCCESSFUL'
+
+  // Default values
+  def colorName = 'RED'
+  def colorCode = '#FF0000'
+  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+  def summary = "${subject} (${env.BUILD_URL})"
+
+  // Override default values based on build status
+  if (buildStatus == 'STARTED') {
+    color = 'YELLOW'
+    colorCode = '#FFFF00'
+  } else if (buildStatus == 'SUCCESSFUL') {
+    color = 'GREEN'
+    colorCode = '#00FF00'
+  } else {
+    color = 'RED'
+    colorCode = '#FF0000'
+  }
+
+  // Send notifications
+  slackSend (color: colorCode, message: summary)
 }
